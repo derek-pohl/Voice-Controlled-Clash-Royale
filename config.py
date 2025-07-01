@@ -3,8 +3,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# YOU SHOULD HAVE A .env FILE IN THE SAME DIRECTORY AS THIS SCRIPT.
+# YOU DON'T NEED TO EDIT THIS FILE. But, if you want to, you can, especially if you want to change the Gemini model.
+
 # --- Gemini AI Configuration ---
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+# You can change this to 'gemini-2.5-flash' for a smarter but slower model
+GEMINI_MODEL = 'gemini-2.5-flash-lite-preview-06-17'
 
 # --- Game Configuration ---
 # IMPORTANT: Change this to the exact title of your game window.
@@ -31,7 +36,7 @@ CARD_SLOTS = {
 
 # These are the RELATIVE coordinates of the playable game grid within the window.
 # This ensures that clicks are placed correctly on the grid, not just the window.
-# Calculated from an 828x1374 window based on your image map.
+
 PLAYABLE_AREA_REL = {
     "x_start": 0.1546,  # 128px from left
     "y_start": 0.1215,  # 167px from top

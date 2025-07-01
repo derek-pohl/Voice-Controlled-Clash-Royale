@@ -78,7 +78,7 @@ def capture_game_window():
 
 def get_ai_action(command, image):
     """Sends the command and screenshot to Gemini and gets the action."""
-    model = genai.GenerativeModel('gemini-2.5-flash')
+    model = genai.GenerativeModel(config.GEMINI_MODEL)
 
     prompt = f"""
     You are an expert AI assistant for the game Clash Royale. Your task is to interpret a user's voice command and a game screenshot to determine the best action.
@@ -174,6 +174,9 @@ def main():
     print("--- Voice Controlled Clash Royale Assistant ---")
     print("Say 'stop program' or 'exit program' to quit.")
     print("Make sure the game window is visible.")
+    print("You may be asked for permissions for python to access the microphone. Obviously, you must allow it.")
+    print("Make sure to also set your Gemini API key in the .env file.")
+    print("By default, the Gemini model used is gemini-2.5-flash-lite-preview-06-17. You can also use gemini-2.5-flash but it is slower yet smarter.")
     while True:
         command = listen_for_command()
         if command:
