@@ -46,7 +46,7 @@ Eg, "Place the cannon to defend the hog rider" or "Fireball the left princess to
 
 ## Usage
 
-1. **Start Clash Royale** on your computer and make sure it's visible on screen
+1. **Start Clash Royale** on your computer and make sure it's visible on screen. DON'T open in full screen, keep in portrait mode.
 
 2. **Run the application**:
    ```bash

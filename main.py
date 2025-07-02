@@ -96,6 +96,7 @@ def get_ai_action(command, image):
     2.  Based on your reasoning, identify the card that best matches the user's command from the 4 available slots.
     3.  Determine the target location on the grid for that card.
     4.  Provide your response in a clean JSON format with four keys: "reasoning", "card_slot", "grid_x", and "grid_y".
+    5.  IMPORTANT: If the command is unrelated to the game or if no action should be taken, set card_slot, grid_x, and grid_y to null, but still provide reasoning explaining why no action is taken.
 
     **JSON Output Format Example:**
     {{
@@ -103,6 +104,14 @@ def get_ai_action(command, image):
       "card_slot": 3,
       "grid_x": 8,
       "grid_y": 15
+    }}
+
+    **Example for unrelated command:**
+    {{
+      "reasoning": "The user's command is unrelated to the game or no action is appropriate at this time.",
+      "card_slot": null,
+      "grid_x": null,
+      "grid_y": null
     }}
 
     Now, analyze the user's command and the attached image and provide the JSON output.
@@ -114,24 +123,96 @@ def get_ai_action(command, image):
         # Clean up the response to extract only the JSON part
         json_text = response.text.strip().lstrip("```json").rstrip("```").strip()
         print(f"Gemini Raw Response: {json_text}")
+        
+        # Parse JSON
         action = json.loads(json_text)
+        
+        # Validate the action structure
+        if not isinstance(action, dict):
+            print("Error: AI response is not a valid JSON object")
+            return None
+            
+        # Check for required keys
+        required_keys = ["reasoning", "card_slot", "grid_x", "grid_y"]
+        for key in required_keys:
+            if key not in action:
+                print(f"Error: Missing required key '{key}' in AI response")
+                return None
+        
         return action
+        
+    except json.JSONDecodeError as e:
+        print(f"Error parsing JSON from AI response: {e}")
+        if 'response' in locals():
+            print(f"Full response text was: {response.text}")
+        return None
     except Exception as e:
-        print(f"Error calling Gemini API or parsing JSON: {e}")
+        print(f"Error calling Gemini API: {e}")
         if 'response' in locals():
             print(f"Full response text was: {response.text}")
         return None
 
 def execute_action(action, window):
     """Executes the action by clicking the card and the target location."""
+    if not action:
+        print("No action to execute.")
+        return
+    
+    # Get values from action dictionary
     card_slot = action.get("card_slot")
     grid_x = action.get("grid_x")
     grid_y = action.get("grid_y")
+    reasoning = action.get("reasoning", "No reasoning provided")
 
-    if None in [card_slot, grid_x, grid_y]:
-        print(f"Invalid action received from AI: {action}")
+    # Check for null values or invalid inputs
+    if card_slot is None or card_slot == "null" or card_slot == -1 or card_slot == "-1":
+        print(f"AI Response: {reasoning}")
+        print("No action taken - AI determined the command is unrelated to the game or no action is appropriate.")
+        return
+    
+    if grid_x is None or grid_x == "null" or grid_x == -1 or grid_x == "-1":
+        print(f"AI Response: {reasoning}")
+        print("No action taken - AI provided invalid grid X coordinate.")
+        return
+        
+    if grid_y is None or grid_y == "null" or grid_y == -1 or grid_y == "-1":
+        print(f"AI Response: {reasoning}")
+        print("No action taken - AI provided invalid grid Y coordinate.")
         return
 
+    # Validate card slot is within valid range (1-4)
+    try:
+        card_slot = int(card_slot)
+        if card_slot < 1 or card_slot > 4:
+            print(f"Invalid card slot: {card_slot}. Must be between 1 and 4.")
+            return
+    except (ValueError, TypeError):
+        print(f"Invalid card slot format: {card_slot}. Must be a number between 1 and 4.")
+        return
+
+    # Validate grid coordinates are within valid ranges
+    try:
+        grid_x = int(grid_x)
+        grid_y = int(grid_y)
+        
+        if grid_x < 0 or grid_x >= config.BOARD_COLS:
+            print(f"Invalid grid X coordinate: {grid_x}. Must be between 0 and {config.BOARD_COLS - 1}.")
+            return
+            
+        if grid_y < 0 or grid_y >= config.BOARD_ROWS:
+            print(f"Invalid grid Y coordinate: {grid_y}. Must be between 0 and {config.BOARD_ROWS - 1}.")
+            return
+            
+    except (ValueError, TypeError):
+        print(f"Invalid grid coordinates: X={grid_x}, Y={grid_y}. Must be valid numbers.")
+        return
+
+    # Check if card slot exists in configuration
+    if card_slot not in config.CARD_SLOTS:
+        print(f"Card slot {card_slot} not found in configuration.")
+        return
+
+    # All validations passed, proceed with action execution
     # 1. Calculate card click coordinates (absolute screen position)
     card_rel_x, card_rel_y = config.CARD_SLOTS[card_slot]
     card_abs_x = window.left + int(window.width * card_rel_x)
@@ -152,19 +233,22 @@ def execute_action(action, window):
     grid_abs_y = playable_abs_y_start + int((grid_y + 0.5) * tile_height)
 
     print("-" * 20)
-    print(f"Executing Action: {action.get('reasoning', 'N/A')}")
+    print(f"Executing Action: {reasoning}")
     print(f"-> Clicking Card {card_slot} at ({card_abs_x}, {card_abs_y})")
     print(f"-> Clicking Grid ({grid_x}, {grid_y}) at ({grid_abs_x}, {grid_abs_y})")
     print("-" * 20)
 
     # 3. Perform the clicks using pyautogui
-    pyautogui.moveTo(card_abs_x, card_abs_y, duration=0.15)
-    pyautogui.click()
-    time.sleep(0.2)  # Small delay between clicks
-    pyautogui.moveTo(grid_abs_x, grid_abs_y, duration=0.15)
-    pyautogui.click()
-
-    print("Action executed.")
+    try:
+        pyautogui.moveTo(card_abs_x, card_abs_y, duration=0.15)
+        pyautogui.click()
+        time.sleep(0.2)  # Small delay between clicks
+        pyautogui.moveTo(grid_abs_x, grid_abs_y, duration=0.15)
+        pyautogui.click()
+        print("Action executed successfully.")
+    except Exception as e:
+        print(f"Error executing action: {e}")
+        return
 
 
 # --- 3. MAIN APPLICATION LOOP ---
@@ -173,24 +257,37 @@ def main():
     """Main loop to listen, capture, process, and act."""
     print("--- Voice Controlled Clash Royale Assistant ---")
     print("Say 'stop program' or 'exit program' to quit.")
-    print("Make sure the game window is visible.")
+    print("Make sure the game window is open and visible.")
     print("You may be asked for permissions for python to access the microphone. Obviously, you must allow it.")
     print("Make sure to also set your Gemini API key in the .env file.")
     print("By default, the Gemini model used is gemini-2.5-flash-lite-preview-06-17. You can also use gemini-2.5-flash but it is slower yet smarter.")
+    
     while True:
-        command = listen_for_command()
-        if command:
-            if "stop program" in command or "exit program" in command:
-                print("Exiting program.")
-                break
+        try:
+            command = listen_for_command()
+            if command:
+                if "stop program" in command or "exit program" in command:
+                    print("Exiting program.")
+                    break
 
-            image, window = capture_game_window()
-            if image and window:
-                action = get_ai_action(command, image)
-                if action:
-                    execute_action(action, window)
+                image, window = capture_game_window()
+                if image and window:
+                    action = get_ai_action(command, image)
+                    if action:
+                        execute_action(action, window)
+                    else:
+                        print("Failed to get a valid action from AI. Please try again.")
+                else:
+                    print("Failed to capture game window. Please ensure the game is visible and try again.")
+            
+        except KeyboardInterrupt:
+            print("\nProgram interrupted by user. Exiting...")
+            break
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+            print("Continuing program... Press Ctrl+C to exit.")
 
-        time.sleep(0.5) # A small delay to prevent accidental loops
+        time.sleep(0.5)  # A small delay to prevent accidental loops
 
 if __name__ == "__main__":
     main()
