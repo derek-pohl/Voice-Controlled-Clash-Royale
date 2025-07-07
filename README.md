@@ -1,6 +1,6 @@
 # Voice-Controlled Clash Royale
 
-A Python application that allows you to control Clash Royale on Windows using voice commands and AI. Simply speak your commands, and the AI will analyze the game state and execute the optimal moves for you.
+A Python application that allows you to control Clash Royale on Windows using voice commands and AI. Simply speak your commands, and the AI will analyze the game state and execute the moves for you.
 
 Eg, "Place the cannon to defend the hog rider" or "Fireball the left princess tower"
 
@@ -16,7 +16,7 @@ Eg, "Place the cannon to defend the hog rider" or "Fireball the left princess to
 - Python 3.7 or higher
 - A Google Gemini API key, which can be found at [Google AI Studio](aistudio.google.com) for free
 - Clash Royale running on your computer [via Google Play Games for Windows](https://play.google.com/googleplaygames/)
-- A working microphone for voice input. It has to be a good-ish microphone.
+- A working microphone for voice input. It has to be a good microphone, as google's free speech recognition tool isn't perfect. A laptop mic is probably fine
 
 ## Installation
 
@@ -62,7 +62,7 @@ Eg, "Place the cannon to defend the hog rider" or "Fireball the left princess to
      - "Place fireball on the tower"
      - "Counter the giant with inferno tower"
      - "Defend with knight"
-   - The AI will analyze the game state and execute the best move
+   - The AI will analyze the game state and execute the best move, but an exact position is better than a relative one.
 
 5. **Stop the program**:
    - Say "stop program" or "exit program" to quit
