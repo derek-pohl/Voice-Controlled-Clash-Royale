@@ -6,3 +6,4 @@ pyautogui
 python-dotenv
 mss
 Pillow
+pyinstaller

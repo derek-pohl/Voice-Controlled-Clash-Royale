@@ -20,6 +20,47 @@ Eg, "Place the cannon to defend the hog rider" or "Fireball the left princess to
 
 ## Installation
 
+### Option 1: Use Pre-built Executable (Easiest)
+
+1. **Download the latest release** from the releases page
+2. **Extract the files** to a folder of your choice
+3. **Set up your Gemini API key**:
+   - Get a free API key from [Google AI Studio](aistudio.google.com)
+   - Edit the `.env` file and add your API key:
+     ```
+     GEMINI_API_KEY="key"
+     ```
+4. **Run the application** by double-clicking `ClashRoyaleVoiceControl.exe` or `run.bat`
+
+### Option 2: Build from Source
+
+1. **Clone the repository** (or download):
+   ```bash
+   git clone https://github.com/yourusername/Voice-Controlled-Clash-Royale.git
+   cd Voice-Controlled-Clash-Royale
+   ```
+
+2. **Build the executable**:
+   ```cmd
+   build.bat
+   ```
+   
+   This will automatically:
+   - Create a virtual environment
+   - Install all dependencies
+   - Build the executable
+   - Package everything ready to use
+
+3. **Set up your Gemini API key**:
+   - Get a free API key from [Google AI Studio](aistudio.google.com)
+   - Edit the `.env` file in the `dist/ClashRoyaleVoiceControl_Package/` folder
+   - Add your API key:
+     ```
+     GEMINI_API_KEY="your_api_key_here"
+     ```
+
+### Option 3: Run from Python Source
+
 1. **Clone the repository** (or download):
    ```bash
    git clone https://github.com/yourusername/Voice-Controlled-Clash-Royale.git
@@ -104,15 +145,30 @@ If clicks are landing in the wrong positions, you may need to recalibrate:
 1. **Card Positions**: Update `CARD_SLOTS` with relative coordinates (0.0-1.0) of your card slots
 2. **Playable Area**: Adjust `PLAYABLE_AREA_REL` to match the game board boundaries on your screen
 
+## Building Your Own Executable
+
+If you want to create your own Windows executable:
+
+1. **Quick build**: Run `build.bat` - creates a single executable
+2. **Advanced build**: Run `build_advanced.bat` - creates both debug and release versions
+3. **Manual build**: Use `python setup.py` or PyInstaller directly
+
+See `BUILD_GUIDE.md` for detailed build instructions and troubleshooting.
+
 ## File Structure
 
 ```
 Voice-Controlled-Clash-Royale/
-├── main.py              # Main application logic
-├── config.py            # Configuration settings
-├── requirements.txt     # Python dependencies
-├── .env                # API keys (create this file)
-└── README.md           # This file (hi)
+├── main.py                          # Main application logic
+├── config.py                        # Configuration settings
+├── requirements.txt                 # Python dependencies
+├── .env                            # API keys (create this file)
+├── build.bat                       # Quick build script
+├── build_advanced.bat              # Advanced build script
+├── setup.py                        # Python setup script
+├── ClashRoyaleVoiceControl.spec    # PyInstaller configuration
+├── BUILD_GUIDE.md                  # Detailed build instructions
+└── README.md                       # This file (hi)
 ```
 
 ## Dependencies
