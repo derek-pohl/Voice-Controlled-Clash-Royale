@@ -4,6 +4,8 @@ A Python application that allows you to control Clash Royale on Windows using vo
 
 Eg, "Place the cannon to defend the hog rider" or "Fireball the left princess tower"
 
+[Watch it work in a real game! (youtube)](https://www.youtube.com/watch?v=1GmNd39DNGU)
+
 ## How It Works
 
 1. **Listen**: The application continuously listens for your voice commands (with Google Speech Recognition) through your microphone
